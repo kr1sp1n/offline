@@ -1,0 +1,14 @@
+{
+  "name": "@kr1sp1n/offline",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "4.14.0",
+    "connect-cache-manifest": "0.2.2"
+  },
+  "engines": {
+    "node": "6.9.1"
+  }
+}
