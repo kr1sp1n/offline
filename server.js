@@ -1,19 +1,46 @@
-const express = require('express');
-const cacheManifest = require('connect-cache-manifest');
-const app = express();
+const serverRouter = require('server-router');
+const hyperstream = require('hyperstream');
+const browserify = require('browserify');
+const bankai = require('bankai');
+const http = require('http');
 
-const config = require('./config')();
-
+const config = require('./config)();
 const { port } = config;
+const client = require('./client');
 
-app.use(cacheManifest({
-  manifestPath: '/application.manifest',
-  cdn: ['http://yui.yahooapis.com/pure/0.5.0/pure-min.css'],
-  files: [],
-  networks: ['*'],
-  fallbacks: []
-}));
+// If an incoming request accepts "text/html", render the
+// appropriate HTML. Else use the API server
+const apiRouter = createRouter()
+const server = http.createServer(function (req, res) {
+  if (/text\/html/.test(req.headers.accept)) handleHtml(req, res)
+  else apiRouter(req, res)
+})
+server.listen(port, () => process.stdout.write(`listening on port ${port}\n`))
 
-app.listen(port, () => {
-  console.log(`Example app listening on ${port}`);
-});
+// create a new router
+// null -> fn
+function createRouter () {
+  const apiRouter = serverRouter('/404')
+
+  apiRouter.on('/404', (req, res) => res.end('404 not found'))
+  apiRouter.on('/', (req, res) => res.end('nothing to be found here'))
+
+  const js = bankai.js(browserify, require.resolve('./client.js'))
+  apiRouter.on('/bundle.js', (req, res) => js(req, res).pipe(res))
+
+  return apiRouter
+}
+
+// render the client to string
+// based on the requested url
+// (obj, obj) -> null
+const createIndex = bankai.html({ favicon: false, css: false })
+function handleHtml (req, res) {
+  res.setHeader('Content-Type', 'text/html; charset=utf-8')
+
+  const state = { message: { server: 'hello server!' } }
+  const inner = client.toString(req.url, state)
+  const hs = hyperstream({ 'body': { _appendHtml: inner } })
+
+  createIndex(req, res).pipe(hs).pipe(res)
+}
