@@ -6,9 +6,14 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "4.14.0",
-    "connect-cache-manifest": "0.2.2",
-    "choo": "4.0.3"
+    "express": "^4.14.0",
+    "connect-cache-manifest": "^0.2.2",
+    "choo": "^4.0.3",
+    "bankai": "^2.0.2",
+    "bl": "^1.1.2",
+    "browserify": "^13.0.1",
+    "hyperstream": "^1.2.2",
+    "server-router": "^2.1.0"
   },
   "engines": {
     "node": "6.9.1"
