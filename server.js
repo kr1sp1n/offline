@@ -4,7 +4,7 @@ const browserify = require('browserify');
 const bankai = require('bankai');
 const http = require('http');
 
-const config = require('./config)();
+const config = require('./config')();
 const { port } = config;
 const client = require('./client');
 
